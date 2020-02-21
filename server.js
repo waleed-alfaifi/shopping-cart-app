@@ -14,6 +14,11 @@ require('dotenv').config();
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(
+  cors({
+    origin: 'https://shoppingcarttest11.herokuapp.com/',
+  })
+);
 
 // Routing.
 app.use('/user', usersRoute);
