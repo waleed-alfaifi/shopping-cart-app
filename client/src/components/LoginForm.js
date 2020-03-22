@@ -87,10 +87,10 @@ class LoginForm extends Component {
             });
 
             dispatch(addItemToCart(itemId));
+            setTimeout(() => this.redirectUser(), 1000);
+          } else {
             this.redirectUser();
           }
-
-          this.redirectUser();
         }
       });
     }
