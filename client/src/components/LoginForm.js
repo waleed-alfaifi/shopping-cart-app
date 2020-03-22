@@ -1,15 +1,23 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { validateLogin } from '../helpers/validators';
+import { addItemToCart } from '../redux/actions/cart';
 
-export default class LoginForm extends Component {
+class LoginForm extends Component {
   constructor(props) {
     super(props);
     const { state } = props.history.location;
     this.state = {
-      email: '',
-      password: '',
+      email: 'demo@test.com',
+      password: '11111111',
       passedMessage: state ? state.message : undefined,
+      messageType: state
+        ? state.type
+          ? state.type
+          : 'secondary'
+        : 'secondary',
+      redirectTo: state ? state.from : '/',
     };
 
     if (localStorage.getItem('token')) {
@@ -37,6 +45,11 @@ export default class LoginForm extends Component {
     });
   };
 
+  redirectUser = () => {
+    const { redirectTo } = this.state;
+    this.props.history.push(redirectTo);
+  };
+
   submitUserInput = e => {
     e.preventDefault();
     const { email, password } = this.state;
@@ -61,7 +74,25 @@ export default class LoginForm extends Component {
         if (data.token) {
           localStorage.setItem('token', data.token);
           localStorage.setItem('name', data.name);
-          this.props.history.push('/');
+
+          // In case there is a pending item
+          const { state } = this.props.location;
+          const { dispatch } = this.props;
+
+          if (state) {
+            const { itemId } = state;
+
+            if (itemId) {
+              this.setState({
+                redirectTo: '/user/cart',
+              });
+
+              dispatch(addItemToCart(itemId));
+              this.redirectUser();
+            }
+          }
+
+          this.redirectUser();
         }
       });
     }
@@ -98,7 +129,7 @@ export default class LoginForm extends Component {
     return (
       <div className="container">
         {this.state.passedMessage && (
-          <div className="alert alert-secondary">
+          <div className={`alert alert-${this.state.messageType}`}>
             {this.state.passedMessage}
           </div>
         )}
@@ -176,3 +207,5 @@ export default class LoginForm extends Component {
     );
   }
 }
+
+export default connect()(LoginForm);

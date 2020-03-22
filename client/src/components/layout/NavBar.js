@@ -1,12 +1,23 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Link, withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-const NavBar = props => {
+const NavBar = () => {
+  const { userItems } = useSelector(({ cart }) => cart);
+
+  const numberOfItems = () =>
+    userItems && (
+      <span className="badge badge-success badge-pill cart-items-badge">
+        {userItems.length}
+      </span>
+    );
+
   return (
     <nav className="navbar bg-dark navbar-dark flex-row-reverse mb-4">
       {/* Navbar Brand */}
       <Link to="/user/cart" className="navbar-brand">
+        {numberOfItems()}
         <FontAwesomeIcon icon="shopping-cart" />
       </Link>
 

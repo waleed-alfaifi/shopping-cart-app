@@ -1,31 +1,58 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import CartItem from './CartItem';
-import withUserItems from './HOC/withUserItems';
+import {
+  fetchUserItems,
+  increaseQuantity,
+  removeItemFromCart,
+  decreaseQuantity,
+} from '../redux/actions/cart';
 
 class Cart extends Component {
   constructor(props) {
     super(props);
+
     if (!localStorage.getItem('token')) {
-      this.props.history.push('/login', {
+      const { url } = this.props.match;
+      const { push } = this.props.history;
+
+      push('/login', {
         message: 'You need to login first to access your cart.',
+        from: url,
       });
     }
   }
 
+  componentDidMount() {
+    this.retrieveUserItems();
+  }
+
+  retrieveUserItems = () => {
+    const { userItems, dispatch } = this.props;
+    if (userItems.length === 0) {
+      dispatch(fetchUserItems());
+    }
+  };
+
   increaseQuantity = itemId => {
-    this.props.increaseQuantity(itemId);
+    const { dispatch } = this.props;
+    dispatch(increaseQuantity(itemId));
   };
 
   decreaseQuantity = itemId => {
-    this.props.decreaseQuantity(itemId);
+    const { dispatch } = this.props;
+    dispatch(decreaseQuantity(itemId));
   };
 
   removeItem = itemId => {
-    this.props.removeItem(itemId);
+    const { dispatch } = this.props;
+    dispatch(removeItemFromCart(itemId));
   };
 
   render() {
-    const { isLoading, userItems, itemsNum, totalPrice } = this.props;
+    const { isLoading, userItems, totalPrice } = this.props;
+
+    const itemsNum = userItems.length;
 
     if (isLoading) {
       return (
@@ -86,4 +113,17 @@ class Cart extends Component {
   }
 }
 
-export default withUserItems(Cart);
+const mapStateToProps = state => {
+  const { cart } = state;
+
+  const { userItems, totalPrice, isLoadingUserItems, error } = cart;
+
+  return {
+    userItems,
+    totalPrice,
+    isLoading: isLoadingUserItems,
+    error,
+  };
+};
+
+export default connect(mapStateToProps)(Cart);

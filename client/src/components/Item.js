@@ -1,93 +1,26 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { addItemToCart } from '../redux/actions/cart';
 
 class Item extends Component {
-  _isMounted = false;
-
-  state = {
-    isInCart: false,
-  };
-
-  componentDidMount() {
-    this._isMounted = true;
-
-    this.userHasItem(this.props.id);
-  }
-
-  componentWillUnmount() {
-    this._isMounted = false;
-  }
-
-  userHasItem = itemId => {
-    if (localStorage.getItem('token')) {
-      fetch(`/user/items/${itemId}`, {
-        headers: {
-          Authorization: localStorage.getItem('token'),
-        },
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.item) {
-            if (this._isMounted) {
-              this.setState({
-                isInCart: true,
-              });
-            }
-          }
-        });
-    }
-  };
-
-  addItemToCart = async () => {
+  addItemToCart = () => {
     if (!localStorage.getItem('token')) {
+      const { id } = this.props;
       this.props.history.push('/login', {
         message: 'Login to add products to your cart.',
+        itemId: id,
       });
     } else {
-      const { id } = this.props;
-      const data = await this.postData('/items/add', { itemId: id });
-
-      // If the item is added successfully.
-      if (data.userItems) {
-        this.showAlertMessage(
-          `Product ${this.props.name} was added to the cart. `
-        );
-        this.setState({
-          isInCart: true,
-        });
-      }
+      const { id, dispatch } = this.props;
+      dispatch(addItemToCart(id));
     }
   };
-
-  /*--- Helper methods START ---*/
-  showAlertMessage = message => {
-    const alertDiv = document.getElementById('addConfirmAlert');
-    const messageNode = document.createTextNode(message);
-
-    if (alertDiv) {
-      alertDiv.innerHTML = '';
-      alertDiv.appendChild(messageNode);
-
-      alertDiv.classList.replace('d-none', 'd-block');
-    }
-  };
-
-  postData = async (url, data = {}) => {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: localStorage.getItem('token'),
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-    return await response.json();
-  };
-  /*--- Helper methods END ---*/
 
   render() {
-    const { name, description, price, imageUrl } = this.props;
+    const { name, description, price, imageUrl, isInCart } = this.props;
+
     return (
       <React.Fragment>
         {/* card - start */}
@@ -104,7 +37,7 @@ class Item extends Component {
           {/* Card links - start */}
           <ul className="list-group list-group-flush">
             <li className="list-group-item">
-              {this.state.isInCart ? (
+              {isInCart ? (
                 <FontAwesomeIcon
                   icon="check"
                   className="text-dark"
@@ -131,4 +64,4 @@ class Item extends Component {
   }
 }
 
-export default withRouter(Item);
+export default connect()(withRouter(Item));

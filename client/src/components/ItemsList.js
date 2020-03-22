@@ -1,49 +1,31 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Item from './Item';
+import { fetchUserItems } from '../redux/actions/cart';
+import { fetchItems } from '../redux/actions/items';
 
 class ItemsList extends Component {
-  _isMounted = false;
-
-  state = {
-    items: [],
-    loadingItems: false,
-  };
-
   componentDidMount() {
-    this._isMounted = true;
-
-    this.setState({ loadingItems: true });
-    fetch('/items')
-      .then(response => response.json())
-      .then(data => {
-        if (this._isMounted) {
-          this.setState({
-            items: data.items,
-            loadingItems: false,
-          });
-        }
-      })
-      .catch(() => {
-        if (this._isMounted) {
-          this.setState({
-            loadingItems: false,
-          });
-        }
-      });
-  }
-
-  componentWillUnmount() {
-    this._isMounted = false;
+    const { dispatch, items } = this.props;
+    dispatch(fetchUserItems());
+    if (items.length === 0) {
+      dispatch(fetchItems());
+    }
   }
 
   render() {
-    if (this.state.loadingItems) {
+    const { loadingItems, items, userItems } = this.props;
+
+    if (loadingItems) {
       return <h3 className="text-center">Loading proudcts...</h3>;
     }
 
-    if (this.state.items.length > 0) {
-      const itemComponents = this.state.items.map(item => {
+    if (items.length > 0) {
+      const itemComponents = items.map(item => {
         const { name, description, price, imageUrl } = item;
+
+        const isInCart = userItems.find(userItem => userItem.id === item._id);
+
         return (
           <Item
             key={item._id}
@@ -52,6 +34,7 @@ class ItemsList extends Component {
             description={description}
             price={price}
             imageUrl={imageUrl}
+            isInCart={isInCart ? true : false}
           />
         );
       });
@@ -74,4 +57,16 @@ class ItemsList extends Component {
   }
 }
 
-export default ItemsList;
+const mapStateToProps = state => {
+  const { items, isLoadingItems, error } = state.items;
+  const { userItems } = state.cart;
+
+  return {
+    items,
+    loadingItems: isLoadingItems,
+    error,
+    userItems,
+  };
+};
+
+export default connect(mapStateToProps)(ItemsList);

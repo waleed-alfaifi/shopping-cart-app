@@ -1,4 +1,5 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import ReactDOM from 'react-dom';
 import App from './App';
 import { library } from '@fortawesome/fontawesome-svg-core';
@@ -11,7 +12,9 @@ import {
   faCartPlus,
   faCheck,
   faTrash,
+  faSpinner,
 } from '@fortawesome/free-solid-svg-icons';
+import store from './redux/store';
 
 library.add(
   fab,
@@ -21,7 +24,13 @@ library.add(
   faMinus,
   faCartPlus,
   faCheck,
-  faTrash
+  faTrash,
+  faSpinner
 );
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('root')
+);

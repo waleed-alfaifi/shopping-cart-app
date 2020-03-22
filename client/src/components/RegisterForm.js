@@ -67,6 +67,17 @@ export default class RegisterForm extends Component {
 
         if (data.message) {
           this.showServerResponseMessage(data.message);
+          this.props.history.push('/login', {
+            message:
+              'You account was created successfully. You can now log in.',
+            type: 'success',
+          });
+          // this.setState({
+          //   name: '',
+          //   email: '',
+          //   password1: '',
+          //   password2: '',
+          // });
         }
       });
     }

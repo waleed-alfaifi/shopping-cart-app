@@ -31,3 +31,9 @@ html,
     grid-template-columns: repeat(4, auto);
   }
 }
+
+.cart-items-badge {
+  position: absolute;
+  font-size: 10px;
+  margin-left: -5px;
+}
