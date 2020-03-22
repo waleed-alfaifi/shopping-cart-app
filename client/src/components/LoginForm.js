@@ -17,7 +17,7 @@ class LoginForm extends Component {
           ? state.type
           : 'secondary'
         : 'secondary',
-      redirectTo: state ? state.from : '/',
+      redirectTo: state ? (state.from ? state.from : '/') : '/',
     };
 
     if (localStorage.getItem('token')) {
@@ -79,17 +79,15 @@ class LoginForm extends Component {
           const { state } = this.props.location;
           const { dispatch } = this.props;
 
-          if (state) {
-            const { itemId } = state;
+          const { itemId } = state || {};
 
-            if (itemId) {
-              this.setState({
-                redirectTo: '/user/cart',
-              });
+          if (itemId) {
+            this.setState({
+              redirectTo: '/user/cart',
+            });
 
-              dispatch(addItemToCart(itemId));
-              this.redirectUser();
-            }
+            dispatch(addItemToCart(itemId));
+            this.redirectUser();
           }
 
           this.redirectUser();
