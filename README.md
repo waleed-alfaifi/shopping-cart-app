@@ -1,8 +1,3 @@
-## Live Website
-
-https://shoppingcarttest11.herokuapp.com/
-
----
 # Description of the App
 
 **Description:** Simple shopping web application made only to practice building full MERN stack applications.
